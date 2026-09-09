@@ -101,9 +101,7 @@ route_map.save('outputs/route_map.html')
 ## Структура проекта
 
 ```
-
 ├── run.py                        # СКРИПТ ЗАПУСКА 
-│
 ├── src/                          # Папка с исходным кодом
 │   ├── __init__.py
 │   ├── config.py
@@ -113,17 +111,12 @@ route_map.save('outputs/route_map.html')
 │   ├── schedule.py
 │   ├── visualize.py
 │   └── utils.py
-│
 ├── notebooks/                    # Папка с Jupyter ноутбуками
 │   └── geolocation_v2.ipynb
-│
 ├── data/                         # Папка с данными
 │   └── data.csv                  # Входной файл с точками
-│
 ├── cache/                        # Папка для кеша (создаётся автоматически)
-│
 ├── outputs/                      # Папка для результатов (создаётся автоматически)
-│
 ├── requirements.txt              # Зависимости
 └── README.md                     # Документация
 ```
