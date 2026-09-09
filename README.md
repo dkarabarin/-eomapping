@@ -238,7 +238,7 @@ project/
 │   └── utils.py                        # Утилиты
 ├── data/                               # Папка с данными
 │   ├── data.csv                        # Входные данные
-│   └── volga-fed-district-260831.osm.pbf  # PBF-файл (з
+│   └── volga-fed-district-260831.osm.pbf  # PBF-файл 
 ├── cache/                              # Кеш (создаётся автоматически)
 │   └── volga_graph.graphml             # Граф в кеше
 ├── outputs/                            # Результаты (создаётся автоматически)
