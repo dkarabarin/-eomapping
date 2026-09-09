@@ -101,24 +101,31 @@ route_map.save('outputs/route_map.html')
 ## Структура проекта
 
 ```
-├── run.py                        # СКРИПТ ЗАПУСКА 
-├── src/                          # Папка с исходным кодом
+project/
+├── run.py                              # Основной скрипт запуска
+├── download_pbf_manual.py              # Скрипт ручного скачивания PBF
+├── src/
 │   ├── __init__.py
-│   ├── config.py
-│   ├── data_loader.py
-│   ├── clustering.py
-│   ├── routing.py
-│   ├── schedule.py
-│   ├── visualize.py
-│   └── utils.py
-├── notebooks/                    # Папка с Jupyter ноутбуками
-│   └── geolocation_v2.ipynb
-├── data/                         # Папка с данными
-│   └── data.csv                  # Входной файл с точками
-├── cache/                        # Папка для кеша (создаётся автоматически)
-├── outputs/                      # Папка для результатов (создаётся автоматически)
-├── requirements.txt              # Зависимости
-└── README.md                     # Документация
+│   ├── config.py                       #  настройки
+│   ├── download_pbf.py                 # Скачивает если нету и сохраняет  в папку data
+│   ├── data_loader.py                  # Загрузка бданных
+│   ├── clustering.py                   # Кластеризация
+│   ├── routing.py                      #  Ищет PBF в папке data
+│   ├── schedule.py                     # Создание рассписания
+│   ├── visualize.py                    # Визуализация
+│   └── utils.py                        # Утилиты
+├── data/                               # Папка с данными
+│   ├── data.csv                        # Входные данные
+│   └── volga-fed-district-260831.osm.pbf  # PBF-файл (з
+├── cache/                              # Кеш (создаётся автоматически)
+│   └── volga_graph.graphml             # Граф в кеше
+├── outputs/                            # Результаты (создаётся автоматически)
+│   ├── schedule_final.csv              # Создание рассписания
+│   ├── daily_stats_final.csv           # Записи посещений по дням
+│   ├── clusters_info_final.csv         # Информация по кластерам
+│   └── route_map_final.html            # Итоговая карта с точками с рассписанием м менеджерами
+├── requirements.txt                    # Завсиисмости для установки
+└── README.md                     
 ```
 
 ---
