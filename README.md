@@ -12,18 +12,51 @@
 - Экспорт результатов в CSV
 
 ---
+# Установка и использование
 
-## Установка
+---
+
+## 1. Установка
+
+### Требования
+
+- Python 3.11+
+
+### Создание окружения
+
+```bash
+mkdir project && cd project
+
+python -m venv venv
+
+# Windows:
+venv\Scripts\activate
+# Linux/Mac:
+source venv/bin/activate
+```
+
+### Установка зависимостей
 
 ```bash
 pip install -r requirements.txt
 ```
 
+> **Проблемы с OSMnx?**
+> ```bash
+> # Windows (рекомендуется)
+> conda install -c conda-forge osmnx
+>
+> # Или через pip
+> pip install gdal && pip install osmnx
+> ```
+
 ---
 
-## Входные данные
+## 2. Входные данные
 
-CSV-файл со следующими полями:
+### 2.1 Файл с точками — `data/data.csv`
+
+Поместите CSV-файл в папку `data/`:
 
 | Поле | Тип | Описание |
 |---|---|---|
@@ -33,71 +66,112 @@ CSV-файл со следующими полями:
 | `visits_per_month` | integer | Количество посещений в месяц |
 | `manager` | integer | ID менеджера (опционально) |
 
----
+Допустимые альтернативные названия: `lat` / `lon` / `n_visits`.
 
-## Использование
+### 2.2 PBF-файл дорожной сети (опционально)
 
-### Базовый пример
+Нужен для точного расчёта маршрутов по дорогам. Без него используются интернет-запросы к OpenStreetMap или прямые линии между точками.
 
-```python
-from src import (
-    load_and_validate_data,
-    load_graph,
-    load_road_cache,
-    cluster_points_dbscan_final,
-    process_clusters_by_manager,
-    assign_clusters_to_days,
-    build_schedule,
-    build_final_map,
-    save_results
-)
-
-# Загрузка данных
-df = load_and_validate_data('data/data.csv')
-
-# Загрузка дорожного графа
-graph = load_graph(df)
-load_road_cache()
-
-# Кластеризация по менеджерам
-clusters_by_manager = process_clusters_by_manager(
-    df, cluster_points_dbscan_final
-)
-
-# Распределение по дням
-day_schedule = assign_clusters_to_days(clusters_by_manager)
-
-# Формирование расписания
-schedule_df = build_schedule(day_schedule, df)
-
-# Сохранение результатов
-save_results(schedule_df, day_schedule, clusters_by_manager)
-
-# Визуализация
-route_map = build_final_map(df, day_schedule, clusters_by_manager)
-route_map.save('outputs/route_map.html')
+**Автоматически при первом запуске:**
+```bash
+python run.py
+# При запросе введите "y"
 ```
 
-### Запуск через Jupyter Notebook
+**Через скрипт:**
+```bash
+python download_pbf_manual.py
+```
+
+**Вручную** — скачайте и сохраните в `data/`:
+```
+https://download.geofabrik.de/russia/volga-fed-district-latest.osm.pbf
+```
+Имя файла: `volga-fed-district-260831.osm.pbf`
+
+---
+
+## 3. Конфигурация — `src/config.py`
+
+```python
+EPS_KM = 25           # Радиус кластеризации (км)
+MAX_CLUSTER_SIZE = 12 # Максимум точек в кластере
+MIN_CLUSTER_SIZE = 8  # Минимум точек в кластере
+WORKING_DAYS = 22     # Рабочих дней в месяце
+AVG_SPEED = 60        # Средняя скорость (км/ч)
+```
+
+При стандартной структуре проекта пути менять не нужно. Если проект перенесён:
+
+```python
+BASE_DIR = r"D:\my_projects\geolocation"
+```
+
+---
+
+## 4. Запуск
+
+### Основной скрипт
+
+```bash
+cd project
+python run.py
+```
+
+### Jupyter Notebook
 
 См. `notebooks/geolocation_v2.ipynb`
 
 ---
 
-## Параметры конфигурации
+## 5. Пример вывода
 
-Все параметры находятся в `src/config.py`:
+```
+============================================================
+🚀 ЗАПУСК СЕРВИСА ГЕОПЛАНИРОВАНИЯ
+============================================================
 
-| Параметр | Описание |
-|---|---|
-| `EPS_KM` | Радиус кластеризации (км) |
-| `MAX_CLUSTER_SIZE` | Максимальное количество точек в кластере |
-| `MIN_CLUSTER_SIZE` | Минимальное количество точек в кластере |
-| `WORKING_DAYS` | Количество рабочих дней в месяце |
-| `AVG_SPEED` | Средняя скорость движения (км/ч) |
+📁 Проверка файлов...
+✅ Данные найдены: data/data.csv (1.2 КБ)
+
+📄 Проверка PBF-файла...
+⚠️  PBF-файл не найден. Хотите скачать автоматически? (y/n): y
+📥 Скачивание volga-fed-district-latest.osm.pbf (~150–200 МБ)...
+✅ Файл скачан: 189.30 МБ
+
+📂 Шаг 1: Загрузка данных
+✅ Загружено 15 точек. Менеджеры: [0, 1, 2]
+
+🗺️  Шаг 2: Загрузка дорожного графа
+✅ Граф загружен из PBF. Узлов: 507 275, рёбер: 1 066 455
+
+🔄 Шаг 3: Кластеризация точек
+👤 Менеджер 0: 5 точек → 1 кластер, диаметр 32.6 км
+👤 Менеджер 1: 5 точек → 1 кластер
+👤 Менеджер 2: 5 точек → 1 кластер
+
+📅 Шаг 4: Распределение по дням
+  День 1: 3 кластера, 15 точек, 2.66 ч, менеджеры: [0, 1, 2]
+
+💾 Шаг 5: Сохранение результатов
+✅ schedule_final.csv
+✅ daily_stats_final.csv
+✅ clusters_info_final.csv
+✅ route_map_final.html — карта открыта в браузере
+
+============================================================
+✅ РАБОТА ЗАВЕРШЕНА УСПЕШНО!
+============================================================
+
+📁 Результаты: outputs/
+   schedule_final.csv       — полное расписание
+   daily_stats_final.csv    — статистика по дням
+   clusters_info_final.csv  — информация о кластерах
+   route_map_final.html     — интерактивная карта
+```
+
 
 ---
-
 ## Структура проекта
 
 ```
