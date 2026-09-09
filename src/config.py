@@ -17,20 +17,31 @@ AVG_SPEED = 60
 CITY_CENTER_LAT = 56.3269
 CITY_CENTER_LON = 44.0052
 
-# Базовая директория (изменить под свою)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-BASE_DIR = r"D:\denis\geolocation"  # Указать путь к папке где лежат файлы
+# Базовая директория
+# укажите полный путь:
+BASE_DIR = r"D:\denis\geolocation"
 
+# Папка с данными (здесь будут и data.csv, и PBF-файл)
+DATA_DIR = os.path.join(BASE_DIR, "data")
+
+# Пути к файлам в папке data
+DATA_PATH = os.path.join(DATA_DIR, "data.csv")
+PBF_FILENAME = "volga-fed-district-260831.osm.pbf"
+PBF_PATH = os.path.join(DATA_DIR, PBF_FILENAME)
+
+# Папки для кеша и результатов
 CACHE_DIR = os.path.join(BASE_DIR, "cache")
 OUTPUT_DIR = os.path.join(BASE_DIR, "outputs")
-DATA_PATH = os.path.join(BASE_DIR, "data", "data.csv")
+
+# GraphML кеш (сохраняется в cache)
 GRAPHML_PATH = os.path.join(CACHE_DIR, "volga_graph.graphml")
 ROAD_DIST_CACHE_FILE = os.path.join(CACHE_DIR, "road_dist_cache.json")
 
 # Случайный seed
 RANDOM_SEED = 42
 
+
 # Создание директорий
+os.makedirs(DATA_DIR, exist_ok=True)
 os.makedirs(CACHE_DIR, exist_ok=True)
 os.makedirs(OUTPUT_DIR, exist_ok=True)
-os.makedirs(os.path.dirname(DATA_PATH) if os.path.dirname(DATA_PATH) else DATA_PATH, exist_ok=True)

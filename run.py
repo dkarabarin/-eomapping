@@ -6,6 +6,10 @@
 import os
 import sys
 import webbrowser
+
+# Добавляем путь к src в PYTHONPATH
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
 from src import (
     load_and_validate_data,
     load_graph,
@@ -16,10 +20,54 @@ from src import (
     assign_clusters_to_days,
     build_schedule,
     build_final_map,
-    save_results,
-    print_cluster_stats
+    save_results
 )
-from src.config import DATA_PATH, OUTPUT_DIR
+from src.config import DATA_PATH, OUTPUT_DIR, PBF_PATH, DATA_DIR
+from src.download_pbf import check_pbf_file, download_pbf
+
+
+def check_data_files():
+    """Проверяет наличие всех необходимых файлов"""
+    print("\n📁 Проверка файлов...")
+    print(f"   Папка данных: {DATA_DIR}")
+    
+    # Проверка папки data
+    if not os.path.exists(DATA_DIR):
+        os.makedirs(DATA_DIR, exist_ok=True)
+        print(f"   ✅ Создана папка: {DATA_DIR}")
+    
+    # Проверка файла данных
+    if not os.path.exists(DATA_PATH):
+        print(f"❌ Файл с данными не найден: {DATA_PATH}")
+        print("   Создайте файл data/data.csv с необходимыми данными")
+        return False
+    
+    print(f"✅ Данные найдены: {DATA_PATH}")
+    print(f"   Размер: {os.path.getsize(DATA_PATH) / 1024:.1f} КБ")
+    
+    # Проверка PBF файла
+    print(f"\n📄 Проверка PBF-файла: {PBF_PATH}")
+    if os.path.exists(PBF_PATH):
+        file_size_mb = os.path.getsize(PBF_PATH) / (1024 * 1024)
+        if file_size_mb > 50:
+            print(f"✅ PBF-файл найден ({file_size_mb:.1f} МБ)")
+        else:
+            print(f"⚠️ PBF-файл слишком мал ({file_size_mb:.1f} МБ)")
+            response = input("   Хотите скачать заново? (y/n): ")
+            if response.lower() == 'y':
+                if not download_pbf(force=True):
+                    print("   ⚠️ Не удалось скачать PBF. Будет использован интернет-запрос.")
+    else:
+        print(f"⚠️ PBF-файл не найден в папке {DATA_DIR}")
+        response = input("   Хотите скачать его автоматически? (y/n): ")
+        if response.lower() == 'y':
+            if not download_pbf():
+                print("   ⚠️ Не удалось скачать PBF. Будет использован интернет-запрос.")
+        else:
+            print("   ⚠️ Будет использован интернет-запрос (может быть медленно)")
+    
+    print("\n" + "-" * 60)
+    return True
 
 
 def main():
@@ -28,22 +76,31 @@ def main():
     print("🚀 ЗАПУСК СЕРВИСА ГЕОПЛАНИРОВАНИЯ")
     print("=" * 60)
     
+    # Проверка файлов
+    if not check_data_files():
+        print("\n❌ Запуск прерван из-за ошибок с файлами")
+        return
+    
     # 1. Загрузка данных
     print("\n📂 Шаг 1: Загрузка данных...")
     try:
         df_original = load_and_validate_data(DATA_PATH)
         print(f"✅ Загружено {len(df_original)} точек")
         print(f"   Менеджеры: {sorted(df_original['manager'].unique())}")
+        print(f"   Колонки: {list(df_original.columns)}")
     except FileNotFoundError as e:
         print(f"❌ Ошибка: {e}")
         print("   Убедитесь, что файл data/data.csv существует")
+        return
+    except Exception as e:
+        print(f"❌ Ошибка загрузки данных: {e}")
         return
     
     # 2. Загрузка дорожного графа
     print("\n🗺️ Шаг 2: Загрузка дорожного графа...")
     graph = load_graph(df_original)
     if graph is not None:
-        print(f"✅ Граф загружен ({len(graph.nodes)} узлов)")
+        print(f"✅ Граф загружен ({len(graph.nodes)} узлов, {len(graph.edges)} рёбер)")
     else:
         print("⚠️ Граф не загружен, будут использоваться прямые линии")
     
@@ -71,6 +128,8 @@ def main():
             print(f"  День {day:2d}: {len(data['clusters']):2d} кластеров, "
                   f"{len(data['points']):3d} точек, "
                   f"{data['total_time']:.2f} ч, менеджеры: {managers}")
+        else:
+            print(f"  День {day:2d}: нет заданий")
     
     # 6. Формирование расписания
     print("\n📋 Шаг 6: Формирование расписания...")
@@ -114,7 +173,11 @@ def main():
     print("   - daily_stats_final.csv - статистика по дням")
     print("   - clusters_info_final.csv - информация о кластерах")
     print("   - route_map_final.html - интерактивная карта")
-
-
-if __name__ == "__main__":
-    main()
+    
+    # Вывод информации о файлах
+    print(f"\n📦 Файлы в папке data:")
+    if os.path.exists(DATA_PATH):
+        print(f"   ✅ data.csv - {os.path.getsize(DATA_PATH) / 1024:.1f} КБ")
+    if os.path.exists(PBF_PATH):
+        pbf_size = os.path.getsize(PBF_PATH) / (1024 * 1024)
+        print(f"   ✅ {
