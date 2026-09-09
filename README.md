@@ -134,6 +134,7 @@ project/
 
 ---
 
-## Лицензия
+## Вид карты
 
-MIT
+<img width="1903" height="1020" alt="image" src="https://github.com/user-attachments/assets/632e56a2-d65d-43d3-b3aa-23ef1424386c" />
+
