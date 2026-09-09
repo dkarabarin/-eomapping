@@ -101,24 +101,31 @@ route_map.save('outputs/route_map.html')
 ## Структура проекта
 
 ```
-project/
-├── src/
+
+├── run.py                        # СКРИПТ ЗАПУСКА 
+│
+├── src/                          # Папка с исходным кодом
 │   ├── __init__.py
-│   ├── config.py          # Конфигурация
-│   ├── data_loader.py     # Загрузка данных
-│   ├── clustering.py      # Кластеризация
-│   ├── routing.py         # Дорожный граф и расстояния
-│   ├── schedule.py        # Расписание
-│   ├── visualize.py       # Визуализация
-│   └── utils.py           # Вспомогательные функции
-├── notebooks/
+│   ├── config.py
+│   ├── data_loader.py
+│   ├── clustering.py
+│   ├── routing.py
+│   ├── schedule.py
+│   ├── visualize.py
+│   └── utils.py
+│
+├── notebooks/                    # Папка с Jupyter ноутбуками
 │   └── geolocation_v2.ipynb
-├── data/
-│   └── data.csv           # Входные данные
-├── cache/                 # Создаётся автоматически
-├── outputs/               # Создаётся автоматически
-├── requirements.txt
-└── README.md
+│
+├── data/                         # Папка с данными
+│   └── data.csv                  # Входной файл с точками
+│
+├── cache/                        # Папка для кеша (создаётся автоматически)
+│
+├── outputs/                      # Папка для результатов (создаётся автоматически)
+│
+├── requirements.txt              # Зависимости
+└── README.md                     # Документация
 ```
 
 ---
